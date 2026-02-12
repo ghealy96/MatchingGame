@@ -1,0 +1,42 @@
+
+    
+    <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                 xmlns:local="clr-namespace:MatchingGame"
+             x:Class="MatchingGame.ScoreBoard">
+    
+    
+    
+    <CollectionView x:Name="ScoreList">
+        <CollectionView.Header>
+            <Grid ColumnDefinitions="*, *, *" Padding="10" BackgroundColor="LightGray">
+                <Label Text="EASY" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
+                <Label Grid.Column="1" Text="MEDIUM" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
+                <Label Grid.Column="2" Text="HARD" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
+            </Grid>
+        </CollectionView.Header>
+
+        <CollectionView.ItemsLayout>
+            <LinearItemsLayout Orientation="Vertical" />
+        </CollectionView.ItemsLayout>
+
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="local:ScoreRow">
+                
+                <Grid ColumnDefinitions="*, *, *" Padding="10">
+                    <Label Text="{Binding Easy}" HorizontalTextAlignment="Center"/>
+                    <Label Grid.Column="1" Text="{Binding Medium}" HorizontalTextAlignment="Center"/>
+                    <Label Grid.Column="2" Text="{Binding Hard}" HorizontalTextAlignment="Center"/>
+                </Grid>
+                
+            </DataTemplate>
+            
+        </CollectionView.ItemTemplate>
+
+        <CollectionView.Footer>
+            <Button x:Name="Exit" Text="Main Menu" TextColor="#FA1515" FontSize="Large" Clicked="Exit_Clicked" />
+        </CollectionView.Footer>
+        
+    </CollectionView>
+        
+</ContentPage>
