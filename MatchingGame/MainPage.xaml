@@ -19,6 +19,8 @@
 
             <Button x:Name="Exit" Text="Exit" TextColor="#FA1515" FontSize="Large" Clicked="Exit_Clicked" />
 
+            <Button x:Name="Blitz" Text="Blitz" TextColor="#FA1515" FontSize="Large" Clicked="Blitz_Clicked" />
+
 
 
             <Grid x:Name="GameGrid" HorizontalOptions="Center" VerticalOptions="Center" BackgroundColor="White">

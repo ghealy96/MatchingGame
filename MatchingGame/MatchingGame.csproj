@@ -62,6 +62,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="BlitzMode.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="ClassicMode.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

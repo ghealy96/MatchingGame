@@ -8,6 +8,7 @@
             Routing.RegisterRoute("ScoreBoard", typeof(ScoreBoard));
             Routing.RegisterRoute("PlayPage", typeof(PlayPage));
             Routing.RegisterRoute("ClassicMode", typeof(ClassicMode));
+            Routing.RegisterRoute("BlitzMode", typeof(BlitzMode));
         }
     }
 }

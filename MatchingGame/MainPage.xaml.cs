@@ -13,28 +13,7 @@ namespace MatchingGame
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
-        int columnSize;
-        int rowSize;
-
-
-        Button lastClicked = null;
-        bool findingMatch = false;
-        int matchesFound;
-        int tenthsOfSecondsElapsed = 0;
-        int highScoreSpeed = 0;
-        int lowScoreSpeed = 0;
-
-        string filePath = "test.txt";
-
-        Dictionary<string, Scores[]> highScores = new Dictionary<string, Scores[]>();
-
-        bool gameOver = true;
-
-
-        bool twoSelected = false;
-        private bool fileExist;
-        private string difficulty;
+        
 
         public MainPage()
         {
@@ -59,6 +38,11 @@ namespace MatchingGame
         private async void Exit_Clicked(object sender, EventArgs e)
         {
             Microsoft.Maui.Controls.Application.Current.Quit();
+        }
+
+        private async void Blitz_Clicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("BlitzMode");
         }
     }
 

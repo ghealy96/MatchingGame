@@ -127,9 +127,10 @@ public partial class ClassicMode : ContentPage
         int gridSize = GameGrid.RowDefinitions.Count * GameGrid.ColumnDefinitions.Count;
         for (int c = 0; c < (gridSize / 2); c++)
         {
-            sortList.Add(list[0]);
-            sortList.Add(list[0]);
-            list.RemoveAt(0);
+            int rand= Random.Shared.Next(0, gridSize-1);
+            sortList.Add(list[rand]);
+            sortList.Add(list[rand]);
+            list.RemoveAt(rand);
         }
 
         foreach (var button in GameGrid.Children.OfType<Button>())

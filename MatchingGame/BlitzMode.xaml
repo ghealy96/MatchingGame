@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MatchingGame.BlitzMode"
+             Title="BlitzMode">
+    <VerticalStackLayout>
+        <HorizontalStackLayout Spacing="50" HorizontalOptions="Center">
+            <Label x:Name="TimeElapsed" Text="Time Elapsed: 0.0 seconds" TextColor="#084CFF" FontSize="Large" />
+            <Label x:Name="MatchScored" Text="{Binding TotalMatches}" TextColor="#084CFF" FontSize="Large" />
+            <Label x:Name="SpeedRun" Text="Fastest Time: 0.0 seconds" TextColor="#084CFF" FontSize="Large" />
+        </HorizontalStackLayout>
+
+
+        <Button x:Name="Exit" Text="Main Menu" TextColor="#FA1515" FontSize="Large" Clicked="Exit_Clicked" />
+
+        <Grid x:Name="GameGrid" HorizontalOptions="Center" VerticalOptions="Center" BackgroundColor="White">
+
+
+        </Grid>
+
+
+    </VerticalStackLayout>
+</ContentPage>
