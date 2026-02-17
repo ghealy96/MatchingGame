@@ -1,22 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
 
-namespace MatchingGame
+namespace MatchingGame;
+
+public class Tile : INotifyPropertyChanged
 {
-    class Tile 
+    public int Id { get; set; }
+    public string Value { get; set; }
+
+    private bool _isFlipped;
+    public bool IsFlipped
     {
-        public int Id { get; set; }
-        public int row { get; set; }
-        public int col { get; set; }
-        public string Value { get; set; }
-        public bool IsFlipped { get; set; }
-        public bool IsMatched { get; set; }
-
-        
-       
-
+        get => _isFlipped;
+        set { _isFlipped = value; OnPropertyChanged(); OnPropertyChanged(nameof(DisplayValue)); }
     }
+
+    private bool _isMatched;
+    public bool IsMatched
+    {
+        get => _isMatched;
+        set { _isMatched = value; OnPropertyChanged(); OnPropertyChanged(nameof(StatusColor)); OnPropertyChanged(nameof(DisplayValue)); }
+    }
+
+    public string DisplayValue => (IsFlipped || IsMatched) ? Value : "?";
+    public Color StatusColor => IsMatched ? Colors.Green : Colors.Cyan;
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    protected void OnPropertyChanged([CallerMemberName] string name = null) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }
