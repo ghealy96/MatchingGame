@@ -9,10 +9,11 @@
     
     <CollectionView x:Name="ScoreList">
         <CollectionView.Header>
-            <Grid ColumnDefinitions="*, *, *" Padding="10" BackgroundColor="LightGray">
+            <Grid ColumnDefinitions="*, *, *, *" Padding="10" BackgroundColor="LightGray">
                 <Label Text="EASY" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
                 <Label Grid.Column="1" Text="MEDIUM" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
                 <Label Grid.Column="2" Text="HARD" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
+                <Label Grid.Column="3" Text="BLITZ" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
             </Grid>
         </CollectionView.Header>
 
@@ -23,10 +24,11 @@
         <CollectionView.ItemTemplate>
             <DataTemplate x:DataType="local:ScoreRow">
                 
-                <Grid ColumnDefinitions="*, *, *" Padding="10">
+                <Grid ColumnDefinitions="*, *, *, *" Padding="10">
                     <Label Text="{Binding Easy}" HorizontalTextAlignment="Center"/>
                     <Label Grid.Column="1" Text="{Binding Medium}" HorizontalTextAlignment="Center"/>
                     <Label Grid.Column="2" Text="{Binding Hard}" HorizontalTextAlignment="Center"/>
+                    <Label Grid.Column="3" Text="{Binding Blitz}" HorizontalTextAlignment="Center"/>
                 </Grid>
                 
             </DataTemplate>

@@ -20,9 +20,11 @@ public partial class ClassicMode : ContentPage
     int highScoreSpeed = 0;
     int lowScoreSpeed = 0;
 
-    string filePath = "test.txt";
+    string filePath = FileSystem.AppDataDirectory;
 
-    Dictionary<string, Scores[]> highScores = new Dictionary<string, Scores[]>();
+    //Dictionary<string, Scores[]> highScores = new Dictionary<string, Scores[]>();
+    ScoreManager scoreManager;   
+   
 
     bool gameOver = true;
 
@@ -34,11 +36,7 @@ public partial class ClassicMode : ContentPage
     public ClassicMode()
 	{
         InitializeComponent();
-        highScores.Add("easy", CreateDefaultScores());
-        highScores.Add("medium", CreateDefaultScores());
-        highScores.Add("hard", CreateDefaultScores());
-        if (!File.Exists(filePath)) { SaveGameFile(highScores); fileExist = true; }
-        if (File.Exists(filePath)) { fileExist = true; ReadGameFile(); }
+        scoreManager = new ScoreManager();
     }
     protected override void OnAppearing()
     {
@@ -53,7 +51,7 @@ public partial class ClassicMode : ContentPage
 
         gameOver = false;
         tenthsOfSecondsElapsed = 0;
-        SpeedRun.Text = $"{highScores[difficulty][0].Name} Highscore: " + (highScoreSpeed / 10f).ToString("0.0s"); //duplicate
+        SpeedRun.Text = $"{scoreManager.packagedScores[difficulty][0].Name} Highscore: " + (highScoreSpeed / 10f).ToString("0.0s"); //duplicate
 
         
         Dispatcher.StartTimer(TimeSpan.FromSeconds(.1), TimerTick);
@@ -63,8 +61,8 @@ public partial class ClassicMode : ContentPage
     private void SelectGameMode()
     {
 
-        highScoreSpeed = highScores[difficulty][0].Time;
-        lowScoreSpeed = highScores[difficulty][9].Time;
+        highScoreSpeed = scoreManager.packagedScores[difficulty][0].Time;
+        lowScoreSpeed = scoreManager.packagedScores[difficulty][9].Time;
 
         switch (difficulty.ToLower())
         {
@@ -146,7 +144,8 @@ public partial class ClassicMode : ContentPage
     {
         gameOver = true;
 
-        bool topScore = await CheckHighScore();
+        Scores currentScores = new Scores(){Time=tenthsOfSecondsElapsed , ScoreType = difficulty , Matches = matchesFound};
+        bool topScore = await scoreManager.CheckHighScore(currentScores,this);
 
         string whatNext;
         if (topScore) { whatNext = await DisplayActionSheet("Play Again?","Main Menu", null,"Easy", "Medium", "Hard"); }
@@ -156,36 +155,10 @@ public partial class ClassicMode : ContentPage
         else { await Shell.Current.GoToAsync("//MainPage"); }
             
     }
-
-    //TRIGGERED THROUGHOUT GAME
-    private async Task<bool> CheckHighScore() //checked at end of button clicked
-    {
-        if (tenthsOfSecondsElapsed < lowScoreSpeed || lowScoreSpeed == 0)
-        {
-            Scores[] scores = highScores[difficulty];
-            int lastTimeChecked = 9;
-
-            for (int i = scores.Length - 1; i >= 0; i--)
-            {
-                if (tenthsOfSecondsElapsed < scores[i].Time)//invert??
-                { lastTimeChecked = i; }
-                else
-                { break; }
-            }
-
-            string playerName = await DisplayPromptAsync($"Congrats! you reached the #{lastTimeChecked+1} spot!", "Enter your name here: ", "Save", "Cancel");
-
-            highScores[difficulty] = InsertArray(lastTimeChecked, scores, playerName);
-            SaveGameFile(highScores);
-            return true;
-        }
-        return false;
-    }
-
     private void ResetGame() //checked after gameOver
     {
         gameOver = false;
-        SpeedRun.Text = $"{highScores[difficulty][0].Name} Top Score: " + (highScoreSpeed / 10f).ToString("0.0s");
+        SpeedRun.Text = $"{scoreManager.packagedScores[difficulty][0].Name} Top Score: " + (highScoreSpeed / 10f).ToString("0.0s");
         matchesFound = 0;
         GameGrid.IsVisible = false;
 
@@ -210,8 +183,6 @@ public partial class ClassicMode : ContentPage
         return true;
 
     }
-
-
     //MAIN INTERACTION WITH TILES
     private async void Button_Clicked(object sender, EventArgs e)
     {
@@ -248,7 +219,7 @@ public partial class ClassicMode : ContentPage
                 {
                     findingMatch = true;
 
-                    await Task.Delay(1000);
+                    await Task.Delay(500);
 
                     buttonClicked.Text = null;
                     if (lastClicked != null) lastClicked.Text = null;
@@ -258,15 +229,11 @@ public partial class ClassicMode : ContentPage
                 }
             }
         }
-
-
         int gridSize = GameGrid.RowDefinitions.Count * GameGrid.ColumnDefinitions.Count;
         
         if (matchesFound == gridSize  / 2)
             { GameOver(); }
-    }
-
-    
+    }    
 
     private async void Exit_Clicked(object sender, EventArgs e)
     {
@@ -274,43 +241,6 @@ public partial class ClassicMode : ContentPage
         await Shell.Current.GoToAsync("//MainPage");
 
     }
-
     //SINGLE FUNCTION TOOLS
-
-    private Scores[] CreateDefaultScores()
-    {
-        Scores[] scores = new Scores[10];
-        for (int i = 0; i < scores.Length; i++)
-        {
-            scores[i] = new Scores { Time = 9999, Name = "empty", MissedClicks = 9999 };
-        }
-        return scores;
-    }
-   
-    
-
-    private void ReadGameFile()
-    {
-
-        highScores = JsonSerializer.Deserialize<Dictionary<string, Scores[]>>(File.ReadAllText(filePath));
-
-    }
-
-    private void SaveGameFile(Dictionary<string, Scores[]> content)
-    {
-        File.WriteAllText(filePath, JsonSerializer.Serialize(content));
-    }
-    
-
-    
-    private Scores[] InsertArray(int lastTimeChecked, Scores[] scores,string player)
-    {
-        for (int i = scores.Length - 1; i > lastTimeChecked; i--)
-        {
-            scores[i] = scores[i - 1];
-        }
-        scores[lastTimeChecked] = new Scores { Name = player, Time = tenthsOfSecondsElapsed, MissedClicks = 0 };
-
-        return scores;
-    }
+       
 }

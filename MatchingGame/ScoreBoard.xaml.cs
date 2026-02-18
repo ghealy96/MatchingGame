@@ -1,4 +1,5 @@
 //using Java.Nio.FileNio;
+//using Google.Android.Material.Color.Utilities;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
@@ -7,30 +8,21 @@ namespace MatchingGame;
 public partial class ScoreBoard : ContentPage
 {
     Dictionary<string, Scores[]> highScores = new Dictionary<string, Scores[]>();
+    ScoreManager scoreManager;
+
     string filePath = "test.txt";
     private bool fileExist = false;
 
     public ScoreBoard()
 	{
 		InitializeComponent();
-		
-        if (File.Exists(filePath)) { ReadGameFile(); fileExist = true; }
-        if (fileExist)
-        {
-           // ClearGrid();
-            CreateGrid();
-        }
+		scoreManager = new ScoreManager();
+        highScores = scoreManager.packagedScores;
+        
+            CreateGrid();        
         
 
 	}
-
-    private void ClearGrid()
-    {
-       // ScoreGrid.Children.Clear();
-       // ScoreGrid.RowDefinitions.Clear();
-        //ScoreGrid.ColumnDefinitions.Clear();
-
-    }
 
     private void CreateGrid()
     {
@@ -43,7 +35,8 @@ public partial class ScoreBoard : ContentPage
                 // We combine Name and Time into a single display string
                 Easy = FormatScore("easy", i),
                 Medium = FormatScore("medium", i),
-                Hard = FormatScore("hard", i)
+                Hard = FormatScore("hard", i),
+                Blitz=FormatScore("blitz",i)
             });
         }
 
@@ -52,10 +45,15 @@ public partial class ScoreBoard : ContentPage
 
     private string FormatScore(string diff, int index)
     {
-        if (highScores.ContainsKey(diff))
+        var score = highScores[diff][index];
+        if (diff=="blitz"&&score.Matches>0)
+        {            
+            
+            float matches = score.Matches;
+            return $"{score.Name}: {matches} Matches";
+        }
+        else if (highScores.ContainsKey(diff))
         {
-            var score = highScores[diff][index];
-
             // If the score is the default "9999", just show a dash
             if (score.Time >= 9999) return "-";
 
@@ -65,14 +63,6 @@ public partial class ScoreBoard : ContentPage
         }
         return "-";
     }
-
-    private void ReadGameFile()
-    {
-
-        highScores = JsonSerializer.Deserialize<Dictionary<string, Scores[]>>(File.ReadAllText(filePath));
-
-    }
-
 
     private async void Exit_Clicked(object sender, EventArgs e)
     {
@@ -88,4 +78,5 @@ public class ScoreRow
     public string Easy { get; set; }
     public string Medium { get; set; }
     public string Hard { get; set; }
+    public string Blitz { get; set; }
 }

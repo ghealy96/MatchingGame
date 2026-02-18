@@ -10,11 +10,16 @@ public partial class BlitzMode : ContentPage
     Button lastClicked = null;
     bool failedMatch = false;
     int matchesFound;
-    int tenthsOfSecondsElapsed = 120;
+    int tenthsOfSecondsLeft = 1200;
+    int tenthsOfSecondsElapsed=0;
+
+    string difficulty = "blitz";
 
     bool gameOver = true;
 
-    public string difficulty { get; set; }
+    ScoreManager scoreManager;
+
+    
 
     public BlitzMode()
     {
@@ -24,6 +29,7 @@ public partial class BlitzMode : ContentPage
     protected override void OnAppearing()
     {
         Setup();
+        scoreManager = new ScoreManager();
     }
 
     private void Setup()
@@ -33,8 +39,9 @@ public partial class BlitzMode : ContentPage
         BuildBoard();
 
         gameOver = false;
-        tenthsOfSecondsElapsed = 1200;
-        
+        tenthsOfSecondsLeft = 1200;
+        tenthsOfSecondsElapsed = 0;
+
 
         Dispatcher.StartTimer(TimeSpan.FromSeconds(.1), TimerTick);
 
@@ -71,23 +78,20 @@ public partial class BlitzMode : ContentPage
             GameGrid.Add(button, tile.col, tile.row);
         }
 
-    }
-
-   
+    }   
 
     private async void GameOver()
     {
         gameOver = true;
+        await CheckScores();
+        string whatNext = await DisplayActionSheet($"Congratz! you found {matchesFound}, Play Again?", "Main Menu", null, "Play Again"); 
 
-        string whatNext = await DisplayActionSheet("Victory! you found them all, Play Again?", "Main Menu", null, "Play Again"); 
-
-        if (whatNext.ToLower() is "play again") { difficulty = whatNext.ToLower(); ResetGame(); }
+        if (whatNext.ToLower() is "play again") {  ResetGame(); }
         else { await Shell.Current.GoToAsync("//MainPage"); }
 
     }
 
     //TRIGGERED THROUGHOUT GAME
-  
 
     private void ResetGame() //checked after gameOver
     {
@@ -106,13 +110,14 @@ public partial class BlitzMode : ContentPage
         if (gameOver) return false;
 
 
-        tenthsOfSecondsElapsed--;
-        TimeElapsed.Text = "Time elapsed: " + (tenthsOfSecondsElapsed / 10f).ToString("0.0s");
-        if (tenthsOfSecondsElapsed < 0) { gameOver = true; CheckScores(); GameOver(); }
+        tenthsOfSecondsElapsed++;
+        int timeLeft = tenthsOfSecondsLeft - tenthsOfSecondsElapsed;
+        TimeElapsed.Text = "Time elapsed: " + (timeLeft / 10f).ToString("0.0s");
+        if (tenthsOfSecondsLeft <= tenthsOfSecondsElapsed) { gameOver = true; GameOver(); }
 
         if (gameOver)
         {
-            tenthsOfSecondsElapsed = 0;
+            tenthsOfSecondsLeft = 0;
             return false;
         }
         return true;
@@ -139,7 +144,6 @@ public partial class BlitzMode : ContentPage
         
 
         bool isMatch = board.ProcessSelection(clickedTile);
-
         
 
         if (isMatch)
@@ -176,9 +180,6 @@ public partial class BlitzMode : ContentPage
         board = new GameBoard(4, 6);
         BuildBoard();
     }
-
-
-
     private async void Exit_Clicked(object sender, EventArgs e)
     {
         gameOver = true;
@@ -186,12 +187,9 @@ public partial class BlitzMode : ContentPage
 
     }
 
-    private void CheckScores()
+    private async Task CheckScores()
     {
-
+        Scores currentScore = new Scores() {ScoreType=difficulty , Matches=matchesFound , Time=tenthsOfSecondsElapsed };
+        await scoreManager.CheckHighScore(currentScore,this);
     }
-
-    //SINGLE FUNCTION TOOLS
-
-   
 }
