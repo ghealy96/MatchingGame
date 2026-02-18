@@ -8,10 +8,13 @@ namespace MatchingGame
     {
         int time=1;
         string name="EMPTY";
-        int missedClicks=-1;
+        int missedClicks;
+        int matches;
 
         public int Time { get => time; set => time = value; }
         public string Name { get => name; set => name = value; }
         public int MissedClicks { get => missedClicks; set => missedClicks = value; }
+
+        public int Matches { get => matches; set => Matches = value;  }
     }
 }

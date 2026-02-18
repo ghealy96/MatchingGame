@@ -10,7 +10,7 @@ public partial class BlitzMode : ContentPage
     Button lastClicked = null;
     bool failedMatch = false;
     int matchesFound;
-    int tenthsOfSecondsElapsed = 0;
+    int tenthsOfSecondsElapsed = 120;
 
     bool gameOver = true;
 
@@ -33,7 +33,7 @@ public partial class BlitzMode : ContentPage
         BuildBoard();
 
         gameOver = false;
-        tenthsOfSecondsElapsed = 0;
+        tenthsOfSecondsElapsed = 1200;
         
 
         Dispatcher.StartTimer(TimeSpan.FromSeconds(.1), TimerTick);
@@ -106,8 +106,9 @@ public partial class BlitzMode : ContentPage
         if (gameOver) return false;
 
 
-        tenthsOfSecondsElapsed++;
+        tenthsOfSecondsElapsed--;
         TimeElapsed.Text = "Time elapsed: " + (tenthsOfSecondsElapsed / 10f).ToString("0.0s");
+        if (tenthsOfSecondsElapsed < 0) { gameOver = true; CheckScores(); GameOver(); }
 
         if (gameOver)
         {
@@ -149,8 +150,10 @@ public partial class BlitzMode : ContentPage
             matchesFound++;
 
             MatchScored.Text = $"Matches Found: {matchesFound}";
+
+            int resetPoints = (board.rowSize * board.columnSize) / 2 ;
         
-        if (matchesFound == (board.rowSize * board.columnSize) / 2) GameOver();           
+            if ((matchesFound%resetPoints)==0) NewBoard();           
         }
         else if(board.lastSelectedTile==null)
         {
@@ -168,6 +171,11 @@ public partial class BlitzMode : ContentPage
         else
             lastClicked = button;
     }
+    public void NewBoard()
+    {
+        board = new GameBoard(4, 6);
+        BuildBoard();
+    }
 
 
 
@@ -175,6 +183,11 @@ public partial class BlitzMode : ContentPage
     {
         gameOver = true;
         await Shell.Current.GoToAsync("//MainPage");
+
+    }
+
+    private void CheckScores()
+    {
 
     }
 
