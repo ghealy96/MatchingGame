@@ -1,24 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
 using System.Text.Json;
 
 namespace MatchingGame
-{
-
-    
+{ 
     class ScoreManager
     {
-
         string filePath = Path.Combine(FileSystem.AppDataDirectory, "MatchingScores.json");
         public bool fileExist = false;
         public bool isNewRecord = false;
-
-        
-
         public Dictionary<string, Scores[]> packagedScores { get; private set; } = new();
-
-
 
         public ScoreManager()
         {
@@ -34,8 +24,7 @@ namespace MatchingGame
             }
             Console.WriteLine($"SCORE FILE PATH: {filePath}");
            
-        }
-       
+        }       
 
         private void ReadGameFile()
         {
@@ -85,8 +74,6 @@ namespace MatchingGame
                         else { break; }
                     
                 }
-
-
 
                 Scores newScore = new Scores();
 

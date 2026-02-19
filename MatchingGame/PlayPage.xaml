@@ -14,23 +14,24 @@
                 <Label x:Name="SpeedRun" Text="Fastest Time: 0.0 seconds" TextColor="#084CFF" FontSize="Large" />
             </HorizontalStackLayout>
 
+            <Label x:Name="ClassicMode" Text=" Clasic Modes " TextColor="#084CFF" FontSize="Large"  HorizontalTextAlignment="Center"/>
+            
+            <HorizontalStackLayout Spacing="50" HorizontalOptions="Center">                
+                <Button x:Name="easy" Text="Easy" CommandParameter="44" TextColor="#FA1515" FontSize="Large" Clicked="ClassicMode_Clicked"/>
+                <Button x:Name="medium" Text="Medium" CommandParameter="45" TextColor="#FA1515" FontSize="Large" Clicked="ClassicMode_Clicked"/>
+                <Button x:Name="hard" Text="Hard" CommandParameter="46" TextColor="#FA1515" FontSize="Large" Clicked="ClassicMode_Clicked" />
+            </HorizontalStackLayout>
 
-            <Button x:Name="easy" Text="Easy" CommandParameter="44" TextColor="#FA1515" FontSize="Large" Clicked="PlayAgainButton_Clicked"/>
+            <Label x:Name="BlitzMode" Text=" Special Modes " TextColor="#084CFF" FontSize="Large"  HorizontalTextAlignment="Center"/>
 
-            <Button x:Name="medium" Text="Medium" CommandParameter="45" TextColor="#FA1515" FontSize="Large" Clicked="PlayAgainButton_Clicked"/>
+            <HorizontalStackLayout Spacing="50" HorizontalOptions="Center">
+                <Button x:Name="Blitz" Text="Blitz" TextColor="#FA1515" FontSize="Large" Clicked="Blitz_Clicked" />
+            </HorizontalStackLayout>
 
-            <Button x:Name="hard" Text="Hard" CommandParameter="46" TextColor="#FA1515" FontSize="Large" Clicked="PlayAgainButton_Clicked" />
-
+            <Label x:Name="Spacer" Text="" TextColor="#084CFF" FontSize="Large"  HorizontalTextAlignment="Center"/>
             <Button x:Name="Exit" Text="Main Menu" TextColor="#FA1515" FontSize="Large" Clicked="Exit_Clicked" />
 
-            <Grid x:Name="GameGrid" HorizontalOptions="Center" VerticalOptions="Center" BackgroundColor="White">
-
-
-            </Grid>
-
-
-
-
+            
 
         </VerticalStackLayout>
     </ScrollView>

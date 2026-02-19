@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-
+﻿
 namespace MatchingGame
 {
     class CharacterList
     {
-
-        
-
-
         public string[] setCharacters(int size)
         {
             List<string> list = new List<string>()
@@ -58,7 +50,6 @@ namespace MatchingGame
             }
             return returnList;
         }
-
 
     }
 }

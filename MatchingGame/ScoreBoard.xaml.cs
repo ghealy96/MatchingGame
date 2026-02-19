@@ -1,7 +1,3 @@
-//using Java.Nio.FileNio;
-//using Google.Android.Material.Color.Utilities;
-using System.Runtime.InteropServices;
-using System.Text.Json;
 
 namespace MatchingGame;
 
@@ -10,18 +6,13 @@ public partial class ScoreBoard : ContentPage
     Dictionary<string, Scores[]> highScores = new Dictionary<string, Scores[]>();
     ScoreManager scoreManager;
 
-    string filePath = "test.txt";
-    private bool fileExist = false;
-
     public ScoreBoard()
 	{
 		InitializeComponent();
 		scoreManager = new ScoreManager();
         highScores = scoreManager.packagedScores;
         
-            CreateGrid();        
-        
-
+        CreateGrid();    
 	}
 
     private void CreateGrid()
@@ -31,8 +22,7 @@ public partial class ScoreBoard : ContentPage
         for (int i = 0; i < 10; i++)
         {
             scoreRows.Add(new ScoreRow
-            {
-                // We combine Name and Time into a single display string
+            {                
                 Easy = FormatScore("easy", i),
                 Medium = FormatScore("medium", i),
                 Hard = FormatScore("hard", i),
@@ -69,9 +59,6 @@ public partial class ScoreBoard : ContentPage
         await Shell.Current.GoToAsync("//MainPage");
     }
 }
-
-
-
 
 public class ScoreRow
 {

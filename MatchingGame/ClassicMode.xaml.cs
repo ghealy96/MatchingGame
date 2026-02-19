@@ -1,58 +1,60 @@
-﻿using System.Text.Json;
-using System.Diagnostics;
-using System.Threading.Tasks;
+﻿
 
 namespace MatchingGame;
 
 [QueryProperty(nameof(difficulty), "difficulty")]
 public partial class ClassicMode : ContentPage
 {
+    GameBoard board;
 
-    int count = 0;
     int columnSize;
     int rowSize;
 
-
     Button lastClicked = null;
-    bool findingMatch = false;
+    bool failedMatch = false;
     int matchesFound;
     int tenthsOfSecondsElapsed = 0;
     int highScoreSpeed = 0;
     int lowScoreSpeed = 0;
-
-    string filePath = FileSystem.AppDataDirectory;
-
-    //Dictionary<string, Scores[]> highScores = new Dictionary<string, Scores[]>();
+        
     ScoreManager scoreManager;   
    
-
     bool gameOver = true;
 
+    private string _difficulty;
+    public string difficulty
+    {
+        get => _difficulty;
+        set
+        {
+            _difficulty = value;
+            
+            if (difficulty != null)
+            {
+                Setup();
+            }
+        }
+    }
 
-    bool twoSelected = false;
-    private bool fileExist;
-    public string difficulty { get; set; }
 
     public ClassicMode()
 	{
         InitializeComponent();
         scoreManager = new ScoreManager();
     }
-    protected override void OnAppearing()
-    {
-        Setup();
-    }
+   
 
     private void Setup()
     {
         SelectGameMode();
-        BuildBoard();
-        CreateTileArray();
+
+        board = new GameBoard(rowSize, columnSize);
+
+        BuildBoard();        
 
         gameOver = false;
         tenthsOfSecondsElapsed = 0;
-        SpeedRun.Text = $"{scoreManager.packagedScores[difficulty][0].Name} Highscore: " + (highScoreSpeed / 10f).ToString("0.0s"); //duplicate
-
+        SpeedRun.Text = $"{scoreManager.packagedScores[difficulty][0].Name} Highscore: " + (highScoreSpeed / 10f).ToString("0.0s");
         
         Dispatcher.StartTimer(TimeSpan.FromSeconds(.1), TimerTick);
 
@@ -88,57 +90,28 @@ public partial class ClassicMode : ContentPage
         GameGrid.ColumnDefinitions.Clear();
         GameGrid.IsVisible = true;
 
-        for (int i = 0; i < rowSize; i++) { GameGrid.RowDefinitions.Add(new RowDefinition { Height = 100 }); }
+        for (int i = 0; i < board.rowSize; i++) { GameGrid.RowDefinitions.Add(new RowDefinition { Height = 100 }); }
 
-        for (int i = 0; i < columnSize; i++) { GameGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = 100 }); }
+        for (int i = 0; i < board.columnSize; i++) { GameGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = 100 }); }
 
+        int fontSize = ((board.rowSize > 4) ? 30 : 60); // double??
 
-        for (int row = 0; row < rowSize; row++)
+        foreach (Tile tile in board.grid)
         {
-            for (int column = 0; column < columnSize; column++)
+            var button = new Button
             {
-                var button = new Button
-                {
-                    Text = "?",
-                    FontSize = (rowSize > 4) ? 30 : 60,
-                    BackgroundColor = Colors.Cyan,
-                    BorderColor = Colors.Black,
-                    BorderWidth = 1,
-                    Margin = 2
-                }
-                ;
-                button.Clicked += Button_Clicked;
-                GameGrid.Add(button, column, row);
-            }
-        }
-    }
-
-    private void CreateTileArray()
-    {
-        List<string> list = new List<string>()
-            {
-                "🦑","🦘","🐸","🦙","🦍","🐘","🦉","🐨","🐯","🦝","🦧",
-                "🐎","🐮","🦔","🦇","🐼","🐧","🐋","🦭","🦈","🦞","🐞"
+                Text = "?",
+                FontSize = fontSize,
+                BackgroundColor = Colors.Cyan,
+                BorderColor = Colors.Black,
+                BorderWidth = 1,
+                Margin = 2,
+                BindingContext = tile // Binding??
             };
-
-        List<string> sortList = new List<string>();
-        int gridSize = GameGrid.RowDefinitions.Count * GameGrid.ColumnDefinitions.Count;
-        for (int c = 0; c < (gridSize / 2); c++)
-        {
-            int rand= Random.Shared.Next(0, gridSize-1);
-            sortList.Add(list[rand]);
-            sortList.Add(list[rand]);
-            list.RemoveAt(rand);
-        }
-
-        foreach (var button in GameGrid.Children.OfType<Button>())
-        {
-            int index = Random.Shared.Next(sortList.Count);
-            string nextEmoji = sortList[index];
-            button.CommandParameter = nextEmoji;
-            sortList.RemoveAt(index);
-        }
-    }
+            button.Clicked += Button_Clicked;
+            GameGrid.Add(button, tile.col, tile.row);
+        }      
+    }   
 
     private async void GameOver()
     {
@@ -151,19 +124,17 @@ public partial class ClassicMode : ContentPage
         if (topScore) { whatNext = await DisplayActionSheet("Play Again?","Main Menu", null,"Easy", "Medium", "Hard"); }
         else { whatNext = await DisplayActionSheet("Victory! you found them all, Play Again?","Main Menu", null, "Easy", "Medium", "Hard"); }
 
-        if(whatNext.ToLower() is "easy" or "medium" or "hard") { difficulty = whatNext.ToLower(); ResetGame(); }
+        if(whatNext != null && whatNext.ToLower() is "easy" or "medium" or "hard" ) { ResetGame(); difficulty = whatNext.ToLower(); }
         else { await Shell.Current.GoToAsync("//MainPage"); }
             
     }
+
     private void ResetGame() //checked after gameOver
     {
         gameOver = false;
         SpeedRun.Text = $"{scoreManager.packagedScores[difficulty][0].Name} Top Score: " + (highScoreSpeed / 10f).ToString("0.0s");
         matchesFound = 0;
-        GameGrid.IsVisible = false;
-
-        Setup();
-    
+        GameGrid.IsVisible = false;    
     }
 
     private bool TimerTick() //constantly checked thoughout game
@@ -187,52 +158,52 @@ public partial class ClassicMode : ContentPage
     private async void Button_Clicked(object sender, EventArgs e)
     {
 
-        if (findingMatch && lastClicked != null){ return; }
+        var button = sender as Button;
+        if (button == null || failedMatch) return;
 
-        if (sender is Button buttonClicked)
+
+
+        int row = GameGrid.GetRow(button);
+        int col = GameGrid.GetColumn(button);
+        Tile clickedTile = board.grid[row, col];
+
+        if (clickedTile.IsMatched || clickedTile.IsFlipped) return;
+
+        button.Text = clickedTile.Value;
+
+
+        bool isMatch = board.ProcessSelection(clickedTile);
+
+
+        if (isMatch)
         {
-            if ((buttonClicked.Text != null && buttonClicked.Text != "?") || string.IsNullOrWhiteSpace(buttonClicked.CommandParameter?.ToString()))  return;
+            button.BackgroundColor = Colors.Green;
+            lastClicked.Background = Colors.Green;
+            lastClicked = null;
+            matchesFound++;
 
-            buttonClicked.Text = buttonClicked.CommandParameter.ToString();
+            MatchScored.Text = $"Matches Found: {matchesFound}";
 
-            if (lastClicked == null)
-            { lastClicked = buttonClicked;
-                return; }
+            int resetPoints = (board.rowSize * board.columnSize) / 2;
 
-            if (buttonClicked != lastClicked)
-            {
-                if (buttonClicked.Text == lastClicked.Text)
-                {
-                    matchesFound++;
-                    MatchScored.Text = $"Matches Found: {matchesFound}";
-
-                    buttonClicked.BackgroundColor = Colors.Green;
-                    lastClicked.BackgroundColor = Colors.Green;
-
-
-                    buttonClicked.CommandParameter = "";
-                    lastClicked.CommandParameter = "";
-
-                    lastClicked = null;
-                }
-                else
-                {
-                    findingMatch = true;
-
-                    await Task.Delay(500);
-
-                    buttonClicked.Text = null;
-                    if (lastClicked != null) lastClicked.Text = null;
-
-                    lastClicked = null;
-                    findingMatch = false;
-                }
-            }
+            if ((matchesFound % resetPoints) == 0) GameOver(); ;
         }
-        int gridSize = GameGrid.RowDefinitions.Count * GameGrid.ColumnDefinitions.Count;
-        
-        if (matchesFound == gridSize  / 2)
-            { GameOver(); }
+        else if (board.lastSelectedTile == null)
+        {
+            failedMatch = true;
+            await Task.Delay(500);
+            failedMatch = false;
+
+
+            lastClicked.Text = "";
+            button.Text = "";
+            lastClicked = null;
+
+
+        }
+        else
+            lastClicked = button;   
+    
     }    
 
     private async void Exit_Clicked(object sender, EventArgs e)
@@ -241,6 +212,5 @@ public partial class ClassicMode : ContentPage
         await Shell.Current.GoToAsync("//MainPage");
 
     }
-    //SINGLE FUNCTION TOOLS
        
 }

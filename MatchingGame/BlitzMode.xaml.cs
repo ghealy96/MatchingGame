@@ -60,7 +60,7 @@ public partial class BlitzMode : ContentPage
 
         for (int i = 0; i < board.columnSize; i++) { GameGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = 100 }); }
 
-        int fontSize = ((board.rowSize > 4) ? 30 : 60); // double??
+        int fontSize = ((board.rowSize > 4) ? 30 : 60); 
 
         foreach (Tile tile in board.grid)
         {
